@@ -1,4 +1,4 @@
-.PHONY: clean-containers clean-images clean-all
+.PHONY: clean-containers clean-images clean-all create-migration migrations-up migrations-down
 
 # Clean up all Docker containers
 clean-containers:
@@ -17,3 +17,15 @@ clean-images:
 # Clean everything (containers and images)
 clean-all: clean-containers clean-images
 	@echo "All containers and images have been removed."
+
+# Create migration file for Mikro-ORM
+create-migration:
+	@docker exec -it blogify-api-dev npx mikro-orm migration:create
+
+# Run migrations
+migrations-up:
+	@docker exec -it blogify-api-dev npx mikro-orm migration:up
+
+# Rollback migration
+migrations-down:
+	@docker exec -it blogify-api-dev npx mikro-orm migration:down
