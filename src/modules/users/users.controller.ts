@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   NotFoundException,
   Param,
@@ -37,11 +38,10 @@ export class UsersController {
   async getProfile(
     @GetCurrentUser() userData: { id: number; email: string; password: string },
   ) {
-    const user = this.userService.findByEmail(userData.email)
-
+    const user = await this.userService.findByEmail(userData.email)
     if (!user) throw new NotFoundException('User not found')
 
-    return this.userService.findByEmail(userData.email)
+    return user
   }
 
   @Put('/:id')
@@ -50,5 +50,10 @@ export class UsersController {
     @Body() body: Partial<UpdateUserDto>,
   ) {
     return this.userService.update(id, body)
+  }
+
+  @Delete('/:id')
+  async deleteUser(@Param('id') id: string) {
+    return this.userService.remove(id)
   }
 }

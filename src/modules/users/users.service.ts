@@ -38,4 +38,12 @@ export class UsersService {
 
     return user
   }
+
+  async remove(id: string) {
+    const user = await this.repo.findOne({ id: parseInt(id) })
+
+    if (!user) throw new NotFoundException(`User with id ${id} not found`)
+
+    return this.em.removeAndFlush(user)
+  }
 }
