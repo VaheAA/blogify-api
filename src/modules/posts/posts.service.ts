@@ -7,8 +7,8 @@ import { Post } from './entities/post.entity'
 import { InjectRepository } from '@mikro-orm/nestjs'
 import { EntityManager, EntityRepository } from '@mikro-orm/core'
 import { CreatePostDto } from './dto/create-post.dto'
-import { parse } from 'ts-jest'
 import { UpdatePostDto } from './dto/update-post.dto'
+import { LIMIT } from '../../shared/constants'
 
 @Injectable()
 export class PostsService {
@@ -24,8 +24,20 @@ export class PostsService {
     return post
   }
 
-  async findAll() {
-    return await this.repo.findAll()
+  async findAll(
+    page: number = 1,
+    limit: number = LIMIT,
+    sortBy: string,
+    sortOrder: string,
+  ) {
+    return await this.em.findAndCount(
+      Post,
+      {},
+      {
+        limit,
+        offset: (page - 1) * limit,
+      },
+    )
   }
 
   async findOne(id: string) {

@@ -33,8 +33,18 @@ export class PostsController {
 
   @Public()
   @Get()
-  async getPosts() {
-    return this.postsService.findAll()
+  async getPosts(
+    @Query('page') page: string,
+    @Query('limit') limit: string,
+    @Query('sortBy') sortBy = 'createdAt',
+    @Query('sortOrder') sortOrder = 'DESC',
+  ) {
+    return this.postsService.findAll(
+      parseInt(page),
+      parseInt(limit),
+      sortBy,
+      sortOrder,
+    )
   }
 
   @Get('/my-posts')
