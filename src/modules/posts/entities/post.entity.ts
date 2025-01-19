@@ -22,6 +22,9 @@ export class Post {
   @Property({ type: 'json' })
   tags: string[] = []
 
+  @Property({ nullable: true })
+  cover?: string
+
   @Property({ onCreate: () => new Date() })
   createdAt: Date = new Date()
 

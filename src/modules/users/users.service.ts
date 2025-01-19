@@ -48,6 +48,13 @@ export class UsersService {
     return this.em.removeAndFlush(user)
   }
 
+  async updateAvatar(userId: number, avatarPath: string) {
+    const user = await this.em.findOne(User, { id: userId })
+    if (!user) throw new NotFoundException(`User not found`)
+    user.avatar = avatarPath
+    await this.em.flush()
+  }
+
   async createSession(user: User, token: string) {
     const session = this.em.create(UserSession, { user, token })
     await this.em.persistAndFlush(session)

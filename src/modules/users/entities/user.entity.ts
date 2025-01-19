@@ -15,6 +15,9 @@ export class User {
   @Property({ hidden: true })
   password!: string
 
+  @Property({ nullable: true })
+  avatar?: string
+
   @Property({ onCreate: () => new Date() })
   createdAt: Date = new Date()
 

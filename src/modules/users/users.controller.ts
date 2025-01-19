@@ -9,6 +9,8 @@ import {
   Put,
   Req,
   UnauthorizedException,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common'
 import { CreateUserDto } from './dto/create-user.dto'
 import { AuthService } from '../auth/auth.service'
@@ -18,12 +20,15 @@ import { Public } from '../../common/decorators/set-public.decorator'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { extractTokenFromHeader } from '../../shared/utils'
 import { Request } from 'express'
+import { FileInterceptor } from '@nestjs/platform-express'
+import { FileUploadService } from '../file-upload/file-upload.service'
 
 @Controller('users')
 export class UsersController {
   constructor(
     private readonly authService: AuthService,
     private readonly userService: UsersService,
+    private readonly fileUploadService: FileUploadService,
   ) {}
 
   @Public()
@@ -50,6 +55,25 @@ export class UsersController {
     await this.authService.signOut(user.email, token)
 
     return { message: 'Signed out successfully' }
+  }
+
+  @Post('upload-avatar')
+  @UseInterceptors(FileInterceptor('avatar'))
+  async uploadAvatar(
+    @UploadedFile() file: Express.Multer.File,
+    @GetCurrentUser() user: { sub: string; email: string },
+  ) {
+    const userId = user.sub
+
+    const result = await this.fileUploadService.uploadFile(
+      file,
+      parseInt(userId),
+    )
+    const avatarUrl = result.secure_url
+
+    await this.userService.updateAvatar(parseInt(userId), avatarUrl)
+
+    return { message: 'Avatar uploaded successfully', avatar: avatarUrl }
   }
 
   @Get('/profile')
