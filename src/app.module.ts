@@ -6,6 +6,7 @@ import { APP_GUARD, APP_PIPE } from '@nestjs/core'
 import { JwtModule } from '@nestjs/jwt'
 import { AuthGuard } from './common/guards/auth.guard'
 import { PostsModule } from './modules/posts/posts.module'
+import { UsersService } from './modules/users/users.service'
 
 @Module({
   imports: [

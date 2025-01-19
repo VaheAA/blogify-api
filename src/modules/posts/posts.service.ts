@@ -1,9 +1,14 @@
-import { Injectable } from '@nestjs/common'
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common'
 import { Post } from './entities/post.entity'
 import { InjectRepository } from '@mikro-orm/nestjs'
 import { EntityManager, EntityRepository } from '@mikro-orm/core'
 import { CreatePostDto } from './dto/create-post.dto'
 import { parse } from 'ts-jest'
+import { UpdatePostDto } from './dto/update-post.dto'
 
 @Injectable()
 export class PostsService {
@@ -45,6 +50,72 @@ export class PostsService {
         orderBy: { [sortBy]: sortOrder },
       },
     )
+
+    return { posts, total }
+  }
+
+  async update(id: string, userId: string, data: Partial<UpdatePostDto>) {
+    const post = await this.em.findOne(
+      Post,
+      { id: parseInt(id) },
+      { populate: ['author'] },
+    )
+
+    if (!post) throw new NotFoundException(`Post with id ${id} not found`)
+
+    if (post.author.id !== parseInt(userId))
+      throw new ForbiddenException('You are not allowed to update this post')
+
+    Object.assign(post, data)
+
+    await this.em.flush()
+
+    return {
+      id: post.id,
+      title: post.title,
+      content: post.content,
+      isPublished: post.isPublished,
+      createdAt: post.createdAt,
+      updatedAt: post.updatedAt,
+    }
+  }
+
+  async remove(id: string, userId: string) {
+    const post = await this.em.findOne(
+      Post,
+      { id: parseInt(id) },
+      { populate: ['author'] },
+    )
+
+    if (!post) throw new NotFoundException(`Post with id ${id} not found`)
+
+    if (post.author.id !== parseInt(userId))
+      throw new ForbiddenException('You are not allowed to remove this post')
+
+    return this.em.removeAndFlush(post)
+  }
+
+  async search(
+    query: string,
+    tags: string[] = [],
+    page: number = 1,
+    limit: number = 10,
+  ) {
+    const filters: any = {}
+
+    if (query) {
+      filters.title = { $fulltext: `%${query}%` }
+    }
+
+    if (tags.length > 0) {
+      filters.tags = { $contains: tags }
+    }
+
+    const [posts, total] = await this.repo.findAndCount(filters, {
+      limit,
+      offset: (page - 1) * limit,
+      orderBy: { createdAt: 'DESC' },
+    })
 
     return { posts, total }
   }

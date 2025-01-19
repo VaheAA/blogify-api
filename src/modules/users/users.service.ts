@@ -4,6 +4,7 @@ import { InjectRepository } from '@mikro-orm/nestjs'
 import { User } from './entities/user.entity'
 import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
+import { UserSession } from '../auth/entities/user-session.entity'
 
 @Injectable()
 export class UsersService {
@@ -45,5 +46,21 @@ export class UsersService {
     if (!user) throw new NotFoundException(`User with id ${id} not found`)
 
     return this.em.removeAndFlush(user)
+  }
+
+  async createSession(user: User, token: string) {
+    const session = this.em.create(UserSession, { user, token })
+    await this.em.persistAndFlush(session)
+  }
+
+  async findSessionByToken(token: string): Promise<UserSession | null> {
+    return await this.em.findOne(UserSession, { token })
+  }
+
+  async deleteSession(user: User, token: string) {
+    const session = await this.em.findOne(UserSession, { user, token })
+    if (session) {
+      await this.em.removeAndFlush(session)
+    }
   }
 }

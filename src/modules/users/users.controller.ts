@@ -7,6 +7,8 @@ import {
   Param,
   Post,
   Put,
+  Req,
+  UnauthorizedException,
 } from '@nestjs/common'
 import { CreateUserDto } from './dto/create-user.dto'
 import { AuthService } from '../auth/auth.service'
@@ -14,6 +16,8 @@ import { UsersService } from './users.service'
 import { GetCurrentUser } from '../../common/decorators/current-user.decorator'
 import { Public } from '../../common/decorators/set-public.decorator'
 import { UpdateUserDto } from './dto/update-user.dto'
+import { extractTokenFromHeader } from '../../shared/utils'
+import { Request } from 'express'
 
 @Controller('users')
 export class UsersController {
@@ -32,6 +36,20 @@ export class UsersController {
   @Post('/signin')
   async login(@Body() body: Partial<CreateUserDto>) {
     return this.authService.signIn(body.email, body.password)
+  }
+
+  @Post('/signout')
+  async signOut(@Req() request: Request) {
+    const token = extractTokenFromHeader(request)
+    const user = request['user'] // User is attached by AuthGuard
+
+    if (!token) {
+      throw new UnauthorizedException('Token not provided')
+    }
+
+    await this.authService.signOut(user.email, token)
+
+    return { message: 'Signed out successfully' }
   }
 
   @Get('/profile')

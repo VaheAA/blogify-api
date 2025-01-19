@@ -47,9 +47,20 @@ export class AuthService {
       throw new BadRequestException(`Invalid credentials`)
 
     const payload = { sub: user.id, username: user.name, email: user.email }
+    const token = await this.jwtService.signAsync(payload)
+
+    await this.usersService.createSession(user, token)
 
     return {
-      access_token: await this.jwtService.signAsync(payload),
+      access_token: token,
     }
+  }
+
+  async signOut(email: string, token: string) {
+    const user = await this.usersService.findByEmail(email)
+    if (!user) throw new NotFoundException(`User with email ${email} not found`)
+
+    await this.usersService.deleteSession(user, token)
+    return { message: 'Signed out successfully' }
   }
 }

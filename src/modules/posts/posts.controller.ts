@@ -12,6 +12,7 @@ import { PostsService } from './posts.service'
 import { CreatePostDto } from './dto/create-post.dto'
 import { Public } from '../../common/decorators/set-public.decorator'
 import { GetCurrentUser } from '../../common/decorators/current-user.decorator'
+import { UpdatePostDto } from './dto/update-post.dto'
 
 @Controller('posts')
 export class PostsController {
@@ -53,6 +54,22 @@ export class PostsController {
     )
   }
 
+  @Public()
+  @Get('search')
+  async search(
+    @Query('query') query: string,
+    @Query('tags') tags: string,
+    @Query('page') page: string,
+    @Query('limit') limit: string,
+  ) {
+    const tagArray = tags ? tags.split(',') : []
+    const pageNum = parseInt(page) || 1
+    const limitNum = parseInt(limit) || 10
+
+    return this.postsService.search(query, tagArray, pageNum, limitNum)
+  }
+
+  @Public()
   @Get(':id')
   async getPost(@Param('id') id: string) {
     return await this.postsService.findOne(id)
@@ -61,9 +78,17 @@ export class PostsController {
   @Put('/:id')
   async updatePost(
     @Param('id') id: string,
-    @Body() body: Partial<CreatePostDto>,
-  ) {}
+    @GetCurrentUser() currentUser: { sub: string; email: string },
+    @Body() body: Partial<UpdatePostDto>,
+  ) {
+    return await this.postsService.update(id, currentUser.sub, body)
+  }
 
   @Delete('/:id')
-  async deletePost(@Param('id') id: string) {}
+  async deletePost(
+    @Param('id') id: string,
+    @GetCurrentUser() currentUser: { sub: string; email: string },
+  ) {
+    return await this.postsService.remove(id, currentUser.sub)
+  }
 }

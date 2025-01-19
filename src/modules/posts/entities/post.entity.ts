@@ -1,4 +1,4 @@
-import { Entity, PrimaryKey, Property, ManyToOne } from '@mikro-orm/core'
+import { Entity, PrimaryKey, Property, ManyToOne, Index } from '@mikro-orm/core'
 import { User } from '../../users/entities/user.entity'
 
 @Entity()
@@ -6,6 +6,7 @@ export class Post {
   @PrimaryKey()
   id!: number
 
+  @Index({ type: 'fulltext' })
   @Property({ length: 255 })
   title!: string
 

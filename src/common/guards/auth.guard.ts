@@ -5,15 +5,17 @@ import {
   UnauthorizedException,
 } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
-import { Request } from 'express'
 import * as process from 'node:process'
 import { Reflector } from '@nestjs/core'
+import { UsersService } from '../../modules/users/users.service'
+import { extractTokenFromHeader } from '../../shared/utils'
 
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
     private jwtService: JwtService,
     private reflector: Reflector,
+    private usersService: UsersService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -26,22 +28,27 @@ export class AuthGuard implements CanActivate {
     }
 
     const request = context.switchToHttp().getRequest()
-    const token = this.extractTokenFromHeader(request)
+    const token = extractTokenFromHeader(request)
     if (!token) {
-      throw new UnauthorizedException()
+      throw new UnauthorizedException('Token not provided')
     }
+
     try {
-      request['user'] = await this.jwtService.verifyAsync(token, {
+      const decoded = await this.jwtService.verifyAsync(token, {
         secret: process.env.JWT_SECRET,
       })
-    } catch {
-      throw new UnauthorizedException()
-    }
-    return true
-  }
 
-  private extractTokenFromHeader(request: Request): string | undefined {
-    const [type, token] = request.headers.authorization?.split(' ') ?? []
-    return type === 'Bearer' ? token : undefined
+      const session = await this.usersService.findSessionByToken(token)
+      if (!session) {
+        throw new UnauthorizedException('Token is invalid or revoked')
+      }
+
+      request['user'] = decoded
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      throw new UnauthorizedException('Invalid or expired token')
+    }
+
+    return true
   }
 }
