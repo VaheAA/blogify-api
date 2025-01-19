@@ -36,9 +36,9 @@ export class UsersController {
 
   @Get('/profile')
   async getProfile(
-    @GetCurrentUser() userData: { id: number; email: string; password: string },
+    @GetCurrentUser() currentUser: { sub: string; email: string },
   ) {
-    const user = await this.userService.findByEmail(userData.email)
+    const user = await this.userService.findByEmail(currentUser.email)
     if (!user) throw new NotFoundException('User not found')
 
     return user

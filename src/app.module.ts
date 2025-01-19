@@ -5,15 +5,17 @@ import { UsersModule } from './modules/users/users.module'
 import { APP_GUARD, APP_PIPE } from '@nestjs/core'
 import { JwtModule } from '@nestjs/jwt'
 import { AuthGuard } from './common/guards/auth.guard'
+import { PostsModule } from './modules/posts/posts.module'
 
 @Module({
   imports: [
     MikroOrmModule.forRoot(config),
     UsersModule,
+    PostsModule,
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: '360s' },
+      signOptions: { expiresIn: '50000060s' },
     }),
   ],
   providers: [
