@@ -15,9 +15,6 @@ export class User {
   @Property({ hidden: true })
   password!: string
 
-  @Property({ default: true })
-  isActive: boolean = true
-
   @Property({ onCreate: () => new Date() })
   createdAt: Date = new Date()
 
