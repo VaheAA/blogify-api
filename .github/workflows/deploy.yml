@@ -1,29 +1,21 @@
-name: Deploy to AWS
+name: CD Pipeline
 
 on:
-  push:
-    branches:
-      - main
+  workflow_run:
+    workflows: ["CI Pipeline"]
+    types:
+      - completed
 
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
+
+  build:
+
+    runs-on: self-hosted
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-
-      - name: Set up SSH
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.AWS_SSH_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-
-      - name: Deploy to EC2
-        run: |
-          scp -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -r . ubuntu@YOUR_EC2_IP:/home/ubuntu/app
-          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ubuntu@YOUR_EC2_IP "
-            cd /home/ubuntu/app &&
-            sudo docker-compose down &&
-            sudo docker-compose up -d
-          "
+      - name: Pull Docker image
+        run: sudo docker pull vahe1232/blogify-api:latest
+      - name: Delete Old docker container
+        run: sudo docker rm -f api || true
+      - name: Run Docker Container
+        run: sudo docker run -d -p 8080:8080 --name api vahe1232/blogify-api
