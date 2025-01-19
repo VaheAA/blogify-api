@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { EntityManager, EntityRepository } from '@mikro-orm/core'
 import { InjectRepository } from '@mikro-orm/nestjs'
 import { User } from './entities/user.entity'
 import { CreateUserDto } from './dto/create-user.dto'
+import { UpdateUserDto } from './dto/update-user.dto'
 
 @Injectable()
 export class UsersService {
@@ -22,5 +23,19 @@ export class UsersService {
     return this.repo.findOne({
       email,
     })
+  }
+
+  async update(id: string, data: Partial<UpdateUserDto>) {
+    const user = await this.repo.findOne({
+      id: parseInt(id),
+    })
+
+    if (!user) throw new NotFoundException(`User with id ${id}`)
+
+    Object.assign(user, data)
+
+    await this.em.flush()
+
+    return user
   }
 }

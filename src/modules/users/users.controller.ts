@@ -1,9 +1,18 @@
-import { Body, Controller, Get, Post } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Get,
+  NotFoundException,
+  Param,
+  Post,
+  Put,
+} from '@nestjs/common'
 import { CreateUserDto } from './dto/create-user.dto'
 import { AuthService } from '../auth/auth.service'
 import { UsersService } from './users.service'
 import { GetCurrentUser } from '../../common/decorators/current-user.decorator'
 import { Public } from '../../common/decorators/set-public.decorator'
+import { UpdateUserDto } from './dto/update-user.dto'
 
 @Controller('users')
 export class UsersController {
@@ -12,6 +21,7 @@ export class UsersController {
     private readonly userService: UsersService,
   ) {}
 
+  @Public()
   @Post('/signup')
   async createUser(@Body() body: CreateUserDto) {
     return this.authService.signUp(body)
@@ -24,7 +34,21 @@ export class UsersController {
   }
 
   @Get('/profile')
-  async getProfile(@GetCurrentUser() user: any) {
-    return this.userService.findByEmail(user.email)
+  async getProfile(
+    @GetCurrentUser() userData: { id: number; email: string; password: string },
+  ) {
+    const user = this.userService.findByEmail(userData.email)
+
+    if (!user) throw new NotFoundException('User not found')
+
+    return this.userService.findByEmail(userData.email)
+  }
+
+  @Put('/:id')
+  async updateUser(
+    @Param('id') id: string,
+    @Body() body: Partial<UpdateUserDto>,
+  ) {
+    return this.userService.update(id, body)
   }
 }
