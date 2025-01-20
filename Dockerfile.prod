@@ -26,4 +26,4 @@ COPY --from=build /app/node_modules ./node_modules
 COPY package*.json ./
 
 # Start the application
-CMD ["npm", "run", "start:prod", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["npm", "run", "start:prod"]
