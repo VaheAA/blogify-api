@@ -172,16 +172,6 @@
           "nullable": false,
           "mappedType": "json"
         },
-        "cover": {
-          "name": "cover",
-          "type": "varchar(255)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": 255,
-          "mappedType": "string"
-        },
         "created_at": {
           "name": "created_at",
           "type": "timestamptz",
@@ -206,6 +196,16 @@
       "name": "post",
       "schema": "public",
       "indexes": [
+        {
+          "columnNames": [
+            "tags"
+          ],
+          "composite": false,
+          "keyName": "post_tags_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
         {
           "keyName": "post_title_index",
           "columnNames": [
