@@ -29,3 +29,6 @@ migrations-up:
 # Rollback migration
 migrations-down:
 	@docker exec -it blogify-api-dev npx mikro-orm migration:down
+deploy:
+	@npm run start:docker:prod
+	@make migrations-up
