@@ -6,7 +6,7 @@ export class User {
   id!: number
 
   @Property({ length: 50 })
-  name!: string
+  username!: string
 
   @Property({ length: 100, unique: true })
   @Unique()

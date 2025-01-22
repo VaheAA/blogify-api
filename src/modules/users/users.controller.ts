@@ -32,18 +32,18 @@ export class UsersController {
   ) {}
 
   @Public()
-  @Post('/signup')
+  @Post('/sign-up')
   async createUser(@Body() body: CreateUserDto) {
     return this.authService.signUp(body)
   }
 
   @Public()
-  @Post('/signin')
+  @Post('/sign-in')
   async login(@Body() body: Partial<CreateUserDto>) {
     return this.authService.signIn(body.email, body.password)
   }
 
-  @Post('/signout')
+  @Post('/sign-out')
   async signOut(@Req() request: Request) {
     const token = extractTokenFromHeader(request)
     const user = request['user'] // User is attached by AuthGuard

@@ -38,7 +38,11 @@ export class AuthService {
 
     if (!isValidPassword) throw new BadRequestException(`Invalid credentials`)
 
-    const payload = { sub: user.id, username: user.name, email: user.email }
+    const payload = {
+      sub: user.id,
+      username: user.username,
+      email: user.email,
+    }
     const token = await this.jwtService.signAsync(payload)
 
     await this.usersService.createSession(user, token)

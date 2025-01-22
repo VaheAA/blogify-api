@@ -15,8 +15,8 @@
           "nullable": false,
           "mappedType": "integer"
         },
-        "name": {
-          "name": "name",
+        "username": {
+          "name": "username",
           "type": "varchar(50)",
           "unsigned": false,
           "autoincrement": false,
