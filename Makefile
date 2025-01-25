@@ -9,7 +9,7 @@ create-migration:
 
 # Run migrations
 migrations-up:
-	@docker exec -it $(PROJECT_NAME)-api-dev npx mikro-orm migration:up
+	@npx mikro-orm migration:up
 
 # Rollback migration
 migrations-down:
