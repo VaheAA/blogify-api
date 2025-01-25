@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common'
 import { Post } from './entities/post.entity'
+import { Tag } from './entities/tag.entity'
 import { InjectRepository } from '@mikro-orm/nestjs'
 import { EntityManager, EntityRepository } from '@mikro-orm/core'
 import { CreatePostDto } from './dto/create-post.dto'
@@ -18,32 +19,88 @@ export class PostsService {
   ) {}
 
   async create(data: CreatePostDto) {
-    const post = this.repo.create(data)
+    const tags = await Promise.all(
+      data.tags.map(async (tagName) => {
+        let tag = await this.em.findOne(Tag, { name: tagName })
+        if (!tag) {
+          tag = this.em.create(Tag, { name: tagName })
+        }
+        return tag
+      }),
+    )
+
+    const post = this.em.create(Post, {
+      ...data,
+      tags,
+    })
 
     await this.em.persistAndFlush(post)
     return post
   }
 
   async findAll(
+    query: string,
+    tags: string,
     page: number = 1,
     limit: number = LIMIT,
     sortBy: string,
     sortOrder: string,
   ) {
-    return await this.em.findAndCount(
-      Post,
-      {},
-      {
-        limit,
-        offset: (page - 1) * limit,
-      },
-    )
+    const filters: any = {}
+
+    if (query) {
+      filters.title = { $fulltext: `%${query}%` }
+    }
+
+    if (tags) {
+      const tagList = tags.split(',').map((tag) => tag.trim())
+      filters.tags = {
+        name: {
+          $in: tagList,
+        },
+      }
+    }
+
+    const [posts, total] = await this.repo.findAndCount(filters, {
+      limit,
+      offset: (page - 1) * limit,
+      orderBy: { [sortBy]: sortOrder },
+      populate: ['author', 'tags'],
+      fields: [
+        'id',
+        'title',
+        'content',
+        'tags',
+        'createdAt',
+        'updatedAt',
+        'author.username',
+        'tags.id',
+        'tags.name',
+      ],
+    })
+
+    return { posts, total }
   }
 
   async findOne(id: string) {
-    return await this.repo.findOne({
-      id: parseInt(id),
-    })
+    return await this.repo.findOne(
+      {
+        id: parseInt(id),
+      },
+      {
+        populate: ['author', 'tags'],
+        fields: [
+          'id',
+          'title',
+          'content',
+          'createdAt',
+          'updatedAt',
+          'author.username',
+          'tags.id',
+          'tags.name',
+        ],
+      },
+    )
   }
 
   async findUserPosts(
@@ -60,6 +117,17 @@ export class PostsService {
         limit,
         offset: (page - 1) * limit,
         orderBy: { [sortBy]: sortOrder },
+        populate: ['author', 'tags'],
+        fields: [
+          'id',
+          'title',
+          'content',
+          'createdAt',
+          'updatedAt',
+          'author.username',
+          'tags.id',
+          'tags.name',
+        ],
       },
     )
 
@@ -86,7 +154,7 @@ export class PostsService {
       id: post.id,
       title: post.title,
       content: post.content,
-      isPublished: post.isPublished,
+      tags: post.tags,
       createdAt: post.createdAt,
       updatedAt: post.updatedAt,
     }
@@ -105,30 +173,5 @@ export class PostsService {
       throw new ForbiddenException('You are not allowed to remove this post')
 
     return this.em.removeAndFlush(post)
-  }
-
-  async search(
-    query: string,
-    tags: string[] = [],
-    page: number = 1,
-    limit: number = 10,
-  ) {
-    const filters: any = {}
-
-    if (query) {
-      filters.title = { $fulltext: `%${query}%` }
-    }
-
-    if (tags.length > 0) {
-      filters.tags = { $contains: tags }
-    }
-
-    const [posts, total] = await this.repo.findAndCount(filters, {
-      limit,
-      offset: (page - 1) * limit,
-      orderBy: { createdAt: 'DESC' },
-    })
-
-    return { posts, total }
   }
 }

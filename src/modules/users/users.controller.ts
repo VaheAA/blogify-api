@@ -43,7 +43,7 @@ export class UsersController {
     return this.authService.signIn(body.email, body.password)
   }
 
-  @Post('/sign-out')
+  @Get('/sign-out')
   async signOut(@Req() request: Request) {
     const token = extractTokenFromHeader(request)
     const user = request['user'] // User is attached by AuthGuard

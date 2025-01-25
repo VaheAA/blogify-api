@@ -1,5 +1,14 @@
-import { Entity, PrimaryKey, Property, ManyToOne, Index } from '@mikro-orm/core'
+import {
+  Entity,
+  PrimaryKey,
+  Property,
+  ManyToOne,
+  Index,
+  ManyToMany,
+  Collection,
+} from '@mikro-orm/core'
 import { User } from '../../users/entities/user.entity'
+import { Tag } from './tag.entity'
 
 @Entity()
 export class Post {
@@ -13,15 +22,11 @@ export class Post {
   @Property({ columnType: 'text' })
   content!: string
 
-  @Property({ default: true })
-  isPublished: boolean = true
-
   @ManyToOne(() => User)
   author!: User
 
-  @Index()
-  @Property({ type: 'json' })
-  tags: string[] = []
+  @ManyToMany(() => Tag, (tag) => tag.posts, { owner: true })
+  tags = new Collection<Tag>(this)
 
   @Property({ onCreate: () => new Date() })
   createdAt: Date = new Date()

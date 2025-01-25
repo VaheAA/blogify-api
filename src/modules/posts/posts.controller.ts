@@ -34,12 +34,16 @@ export class PostsController {
   @Public()
   @Get()
   async getPosts(
-    @Query('page') page: string,
-    @Query('limit') limit: string,
+    @Query('query') query: string,
+    @Query('tags') tags: string,
+    @Query('page') page: string = '1',
+    @Query('limit') limit: string = '9',
     @Query('sortBy') sortBy = 'createdAt',
     @Query('sortOrder') sortOrder = 'DESC',
   ) {
     return this.postsService.findAll(
+      query,
+      tags,
       parseInt(page),
       parseInt(limit),
       sortBy,
@@ -62,21 +66,6 @@ export class PostsController {
       sortBy,
       sortOrder,
     )
-  }
-
-  @Public()
-  @Get('search')
-  async search(
-    @Query('query') query: string,
-    @Query('tags') tags: string,
-    @Query('page') page: string,
-    @Query('limit') limit: string,
-  ) {
-    const tagArray = tags ? tags.split(',') : []
-    const pageNum = parseInt(page) || 1
-    const limitNum = parseInt(limit) || 10
-
-    return this.postsService.search(query, tagArray, pageNum, limitNum)
   }
 
   @Public()
