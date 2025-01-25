@@ -1,6 +1,5 @@
 import { TsMorphMetadataProvider } from '@mikro-orm/reflection'
 import { PostgreSqlDriver } from '@mikro-orm/postgresql'
-import * as process from 'node:process'
 
 const config = {
   entities: ['./dist/**/*.entity.js'], // Path to compiled entities
@@ -18,5 +17,7 @@ const config = {
     pathTs: './src/database/migrations',
   },
 }
+
+console.log(config)
 
 export default config

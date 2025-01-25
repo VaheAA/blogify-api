@@ -24,10 +24,12 @@ services:
       context: .
       dockerfile: Dockerfile.prod
     env_file:
-      - .env.production
+      - ..env.production
     ports:
       - "8080:8080"
     restart: always
+    depends_on:
+      - db
     profiles:
       - prod
 
