@@ -2,4 +2,4 @@ FROM koyeb/docker-compose
 
 COPY . /app
 
-CMD ["docker-compose", "--profile prod, "up", "--build"]
+CMD ["npm", "run", "start:docker:prod"]
