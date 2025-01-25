@@ -3,24 +3,6 @@
 # Set project name as a variable for reusability
 PROJECT_NAME := blogify
 
-# Clean up project-related Docker containers
-clean-containers:
-	@echo "Stopping project-related containers..."
-	@docker ps -q --filter "name=$(PROJECT_NAME)" | xargs -r docker stop
-	@echo "Removing project-related containers..."
-	@docker ps -a -q --filter "name=$(PROJECT_NAME)" | xargs -r docker rm
-	@echo "Project-related containers have been removed."
-
-# Clean up project-related Docker images
-clean-images:
-	@echo "Removing project-related Docker images..."
-	@docker images -q --filter "reference=$(PROJECT_NAME)" | xargs -r docker rmi -f
-	@echo "Project-related images have been removed."
-
-# Clean project-related containers and images
-clean-all: clean-containers clean-images
-	@echo "All project-related containers and images have been removed."
-
 # Create migration file for Mikro-ORM
 create-migration:
 	@docker exec -it $(PROJECT_NAME)-api-dev npx mikro-orm migration:create
