@@ -7,6 +7,7 @@ import { AuthGuard } from './common/guards/auth.guard'
 import { PostsModule } from './modules/posts/posts.module'
 import { ConfigModule } from '@nestjs/config'
 import config from './config/mikro-orm.config'
+import { AppService } from './app.service'
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import config from './config/mikro-orm.config'
     }),
   ],
   providers: [
+    AppService,
     {
       provide: APP_PIPE,
       useValue: new ValidationPipe({

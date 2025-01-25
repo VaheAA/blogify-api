@@ -13,7 +13,7 @@ const config = {
   metadataProvider: TsMorphMetadataProvider,
   migrations: {
     tableName: 'mikro_orm_migrations',
-    path: './migrations',
+    path: './database/migrations',
     pathTs: './src/database/migrations',
   },
 }
