@@ -8,6 +8,7 @@ const config = {
   dbName: process.env.MIKRO_ORM_POSTGRES_DB,
   user: process.env.MIKRO_ORM_POSTGRES_USER,
   password: process.env.MIKRO_ORM_POSTGRES_PASSWORD,
+  clientUrl: process.env.MIKRO_ORM_DATABASE_URL,
   driver: PostgreSqlDriver,
   host: process.env.MIKRO_ORM_DB_HOST,
   port: parseInt(process.env.MIKRO_ORM_PORT) || 5432,
