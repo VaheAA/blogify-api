@@ -9,6 +9,7 @@ const config = {
   user: process.env.MIKRO_ORM_POSTGRES_USER,
   password: process.env.MIKRO_ORM_POSTGRES_PASSWORD,
   driver: PostgreSqlDriver,
+  host: process.env.MIKRO_ORM_DB_HOST,
   port: parseInt(process.env.MIKRO_ORM_PORT) || 5432,
   debug: process.env.NODE_ENV !== 'production',
   metadataProvider: TsMorphMetadataProvider,
