@@ -8,9 +8,7 @@ const config = {
   user: process.env.MIKRO_ORM_POSTGRES_USER,
   password: process.env.MIKRO_ORM_POSTGRES_PASSWORD,
   driver: PostgreSqlDriver,
-  clientUrl: process.env.MIKRO_ORM_POSTGRES_URL,
-  host: 'db',
-  port: 5432,
+  clientUrl: process.env.MIKRO_ORM_DATABASE_URL,
   debug: process.env.NODE_ENV !== 'production',
   metadataProvider: TsMorphMetadataProvider,
   migrations: {
@@ -18,6 +16,11 @@ const config = {
     path: './migrations',
     pathTs: './src/database/migrations',
   },
+}
+
+if (process.env.NODE_ENV !== 'production') {
+  config['host'] = 'db'
+  config['port'] = 5432
 }
 
 export default config

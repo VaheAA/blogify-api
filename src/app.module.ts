@@ -7,6 +7,7 @@ import { JwtModule } from '@nestjs/jwt'
 import { AuthGuard } from './common/guards/auth.guard'
 import { PostsModule } from './modules/posts/posts.module'
 
+console.log(config)
 @Module({
   imports: [
     MikroOrmModule.forRoot(config),

@@ -22,14 +22,12 @@ services:
     container_name: blogify-api-prod
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.prod
     env_file:
       - .env.production
     ports:
       - "8080:8080"
     restart: always
-    depends_on:
-      - db
     profiles:
       - prod
 
