@@ -11,7 +11,7 @@ const config = {
   driver: PostgreSqlDriver,
   clientUrl: process.env.MIKRO_ORM_DATABASE_URL,
   host: process.env.MIKRO_ORM_HOST || 'db',
-  port: process.env.MIKRO_ORM_PORT || 5432,
+  port: parseInt(process.env.MIKRO_ORM_PORT) || 5432,
   debug: process.env.NODE_ENV !== 'production',
   metadataProvider: TsMorphMetadataProvider,
   migrations: {
