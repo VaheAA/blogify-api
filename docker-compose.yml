@@ -10,8 +10,8 @@ services:
     ports:
       - "3002:3000"
     volumes:
-      - .:/app
-      - /app/node_modules
+      - .:/code
+      - /code/node_modules
     depends_on:
       - db
     profiles:
@@ -22,14 +22,14 @@ services:
     container_name: blogify-api-prod
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.prod
     env_file:
       - .env.production
     ports:
       - "8080:8080"
     restart: always
     volumes:
-      - .:/app
+      - .:/code
     depends_on:
       - db
     profiles:
