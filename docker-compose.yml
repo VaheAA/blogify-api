@@ -10,7 +10,7 @@ services:
     ports:
       - "3002:3000"
     volumes:
-      - .:/code
+      - .:/app
       - /app/node_modules
     depends_on:
       - db
@@ -28,8 +28,6 @@ services:
     ports:
       - "8080:8080"
     restart: always
-    volumes:
-      - .:/app
     depends_on:
       - db
     profiles:
