@@ -1,5 +1,6 @@
 import { TsMorphMetadataProvider } from '@mikro-orm/reflection'
 import { PostgreSqlDriver } from '@mikro-orm/postgresql'
+import * as process from 'node:process'
 
 const config = {
   entities: ['./dist/**/*.entity.js'], // Path to compiled entities
@@ -9,6 +10,8 @@ const config = {
   password: process.env.MIKRO_ORM_POSTGRES_PASSWORD,
   driver: PostgreSqlDriver,
   clientUrl: process.env.MIKRO_ORM_DATABASE_URL,
+  host: process.env.MIKRO_ORM_HOST || 'db',
+  port: process.env.MIKRO_ORM_PORT || 5432,
   debug: process.env.NODE_ENV !== 'production',
   metadataProvider: TsMorphMetadataProvider,
   migrations: {
@@ -16,11 +19,6 @@ const config = {
     path: './migrations',
     pathTs: './src/database/migrations',
   },
-}
-
-if (process.env.NODE_ENV !== 'production') {
-  config['host'] = 'db'
-  config['port'] = 5432
 }
 
 export default config
