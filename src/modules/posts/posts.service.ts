@@ -138,15 +138,34 @@ export class PostsService {
     const post = await this.em.findOne(
       Post,
       { id: parseInt(id) },
-      { populate: ['author'] },
+      { populate: ['author', 'tags'] },
     )
 
     if (!post) throw new NotFoundException(`Post with id ${id} not found`)
 
-    if (post.author.id !== parseInt(userId))
+    if (post.author.id !== parseInt(userId)) {
       throw new ForbiddenException('You are not allowed to update this post')
+    }
 
-    Object.assign(post, data)
+    Object.assign(post, {
+      title: data.title,
+      content: data.content,
+    })
+
+    if (data.tags) {
+      const tags = await Promise.all(
+        data.tags.map(async (tagName) => {
+          let tag = await this.em.findOne(Tag, { name: tagName })
+          if (!tag) {
+            tag = this.em.create(Tag, { name: tagName })
+            await this.em.persistAndFlush(tag)
+          }
+          return tag
+        }),
+      )
+
+      post.tags.set(tags)
+    }
 
     await this.em.flush()
 
@@ -154,7 +173,7 @@ export class PostsService {
       id: post.id,
       title: post.title,
       content: post.content,
-      tags: post.tags,
+      tags: post.tags.getItems().map((tag) => tag.name),
       createdAt: post.createdAt,
       updatedAt: post.updatedAt,
     }
