@@ -174,4 +174,8 @@ export class PostsService {
 
     return this.em.removeAndFlush(post)
   }
+
+  async findAllTags() {
+    return this.em.find(Tag, {}, { fields: ['id', 'name'] })
+  }
 }

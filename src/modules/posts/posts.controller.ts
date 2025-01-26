@@ -69,6 +69,12 @@ export class PostsController {
   }
 
   @Public()
+  @Get('/tags')
+  async getTags() {
+    return await this.postsService.findAllTags()
+  }
+
+  @Public()
   @Get(':id')
   async getPost(@Param('id') id: string) {
     return await this.postsService.findOne(id)
