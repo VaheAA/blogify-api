@@ -5,7 +5,6 @@ import {
   UnauthorizedException,
 } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
-import * as process from 'node:process'
 import { Reflector } from '@nestjs/core'
 import { UsersService } from '../../modules/users/users.service'
 import { extractTokenFromHeader } from '../../shared/utils'
@@ -13,9 +12,9 @@ import { extractTokenFromHeader } from '../../shared/utils'
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
-    private jwtService: JwtService,
-    private reflector: Reflector,
-    private usersService: UsersService,
+    private readonly jwtService: JwtService,
+    private readonly reflector: Reflector,
+    private readonly usersService: UsersService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -23,14 +22,13 @@ export class AuthGuard implements CanActivate {
       'isPublic',
       context.getHandler(),
     )
-    if (isPublic) {
-      return true
-    }
+    if (isPublic) return true
 
     const request = context.switchToHttp().getRequest()
     const token = extractTokenFromHeader(request)
+
     if (!token) {
-      throw new UnauthorizedException('Token not provided')
+      throw new UnauthorizedException('Authorization token is required')
     }
 
     try {
@@ -38,17 +36,23 @@ export class AuthGuard implements CanActivate {
         secret: process.env.JWT_SECRET,
       })
 
-      const session = await this.usersService.findSessionByToken(token)
-      if (!session) {
-        throw new UnauthorizedException('Token is invalid or revoked')
+      if (Date.now() >= decoded.exp * 1000) {
+        throw new UnauthorizedException(
+          'Token has expired, please log in again',
+        )
       }
 
-      request['user'] = decoded
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
-      throw new UnauthorizedException('Invalid or expired token')
-    }
+      const session = await this.usersService.findSessionByToken(token)
+      if (!session) {
+        throw new UnauthorizedException('Invalid or revoked token')
+      }
 
-    return true
+      request.user = decoded
+      return true
+    } catch (error) {
+      throw new UnauthorizedException(
+        error.message || 'Invalid or expired token',
+      )
+    }
   }
 }

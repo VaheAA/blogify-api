@@ -8,8 +8,15 @@ export class AppService implements OnApplicationBootstrap {
   async onApplicationBootstrap() {
     try {
       const migrator = this.orm.getMigrator()
-      await migrator.up()
-      console.log('Migrations executed successfully.')
+
+      const pendingMigrations = await migrator.getPendingMigrations()
+      if (pendingMigrations.length) {
+        console.log('Pending migrations:', pendingMigrations)
+        await migrator.up()
+        console.log('Migrations executed successfully.')
+      } else {
+        console.log('No pending migrations.')
+      }
     } catch (error) {
       console.error('Error running migrations:', error)
       process.exit(1)
